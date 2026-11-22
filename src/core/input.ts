@@ -5,6 +5,7 @@ export class Input {
   private dx = 0;
   private pointer: number | null = null;
   private lastX = 0;
+  private mouseX: number | null = null;
   private left = false;
   private right = false;
   sensitivity = 1.35;
@@ -22,6 +23,12 @@ export class Input {
       this.onFirstInput();
     });
     window.addEventListener('pointermove', e => {
+      // Desktop mouse: the squad follows the cursor without holding a button.
+      if (e.pointerType === 'mouse') {
+        if (this.mouseX !== null) this.dx += ((e.clientX - this.mouseX) / this.getScale()) * this.sensitivity;
+        this.mouseX = e.clientX;
+        return;
+      }
       if (e.pointerId !== this.pointer) return;
       this.dx += ((e.clientX - this.lastX) / this.getScale()) * this.sensitivity;
       this.lastX = e.clientX;
@@ -38,7 +45,8 @@ export class Input {
       if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.left = false;
       if (e.code === 'ArrowRight' || e.code === 'KeyD') this.right = false;
     });
-    window.addEventListener('blur', () => { this.left = this.right = false; this.pointer = null; });
+    document.documentElement.addEventListener('mouseleave', () => { this.mouseX = null; });
+    window.addEventListener('blur', () => { this.mouseX = null; this.left = this.right = false; this.pointer = null; });
   }
 
   /** apply accumulated input to a target x */
@@ -49,6 +57,9 @@ export class Input {
     if (this.right) x += 600 * dt;
     return clamp(x, min, max);
   }
+
+  /** drop accumulated movement (e.g. mouse hover while in menus/pause) */
+  flush() { this.dx = 0; }
 
   reset() { this.dx = 0; this.pointer = null; }
 }

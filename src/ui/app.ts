@@ -79,6 +79,7 @@ export class App {
     const dt = Math.min(0.1, (t - this.last) / 1000);
     this.last = t;
     const w = this.world;
+    if (this.mode !== 'play') this.input.flush();
     const running = this.mode === 'play' || this.mode === 'title' || this.mode === 'menu' || this.mode === 'end';
     if (running) {
       this.acc += dt;
