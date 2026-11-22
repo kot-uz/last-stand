@@ -99,13 +99,17 @@ export function updateSquad(w: World, dt: number) {
       const dx = L.x - c.x, dy = L.y - c.y;
       const d = Math.hypot(dx, dy) || 1;
       const sp = 360 + c.t * 500;
-      c.x += (dx / d) * sp * dt;
-      c.y += (dy / d) * sp * dt - w.scroll * dt;
-      if (d < 16) {
+      const step = sp * dt;
+      // collect if in range or if this step would overshoot the leader (prevents orbiting/flicker)
+      if (d < 16 + step) {
+        c.x = L.x; c.y = L.y;
         c.dead = true;
         w.stats.coins += c.v;
         w.emit('coin', L.x, L.y);
         w.sound('coin');
+      } else {
+        c.x += (dx / d) * step;
+        c.y += (dy / d) * step - w.scroll * dt;
       }
     }
   }
