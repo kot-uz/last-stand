@@ -300,10 +300,10 @@ export class App {
         <div class="stat"><div class="k">Время</div><div class="v">${Math.floor(s.time / 60)}:${String(Math.floor(s.time % 60)).padStart(2, '0')}</div></div>
       </div>
       <div class="tally">
-        <div><span>Собрано лома</span>${coinsHtml(res.won ? res.collected : res.total)}</div>
+        <div><span>Собрано монет</span>${coinsHtml(res.won ? res.collected : res.total)}</div>
         ${res.won ? `<div><span>За прохождение</span>${coinsHtml(res.clearBonus)}</div>
         ${res.starBonus ? `<div><span>Новые звёзды</span>${coinsHtml(res.starBonus)}</div>` : ''}
-        ${res.campBonus ? `<div><span>Отправлено в лагерь (${res.sentToCamp})</span>${coinsHtml(res.campBonus)}</div>` : ''}` : '<div class="muted"><span>Сохранено 50% лома</span></div>'}
+        ${res.campBonus ? `<div><span>Отправлено в лагерь (${res.sentToCamp})</span>${coinsHtml(res.campBonus)}</div>` : ''}` : '<div class="muted"><span>Сохранено 50% монет</span></div>'}
         <div class="total"><span>Итого</span>${coinsHtml(res.total)}</div>
       </div>
       ${res.won && res.promoted ? `<div class="note">▲ ${res.promoted} бойц. повышены в звании. В казарме: ${res.kept.length}</div>` : ''}
@@ -328,7 +328,7 @@ export class App {
       <div class="result-title lose">Конец пути</div>
       <div class="stats"><div class="stat"><div class="k">Дистанция</div><div class="v">${res.distance} м</div></div>
       <div class="stat"><div class="k">Рекорд</div><div class="v">${save.endlessBest} м</div></div></div>
-      <div class="tally"><div class="total"><span>Лом</span>${coinsHtml(res.total)}</div></div>
+      <div class="tally"><div class="total"><span>Монеты</span>${coinsHtml(res.total)}</div></div>
       <div class="row"><button class="btn secondary" data-a="map">Карта</button><button class="btn" data-a="retry">Ещё раз</button></div>
     </div></div>`);
     el.querySelector('[data-a=retry]')!.addEventListener('click', () => this.start(ENDLESS));

@@ -166,7 +166,7 @@ function collect(w: World, kind: string, payload: string, x: number, y: number) 
     case 'p_ammo':
       if (w.weapon.def.ammo === 0) {
         w.dropCoins(x, y, 12);
-        w.emit('text', x, y - 24, 18, 0, '#ffd166', '+ЛОМ');
+        w.emit('text', x, y - 24, 18, 0, '#ffd166', '+МОНЕТЫ');
       } else {
         w.weapon.ammo = Math.min(w.weapon.maxAmmo, w.weapon.ammo + Math.round(w.weapon.maxAmmo * AMMO_REFILL));
         w.emit('text', x, y - 24, 18, 0, '#9bd36a', '+ПАТРОНЫ');
@@ -177,7 +177,7 @@ function collect(w: World, kind: string, payload: string, x: number, y: number) 
       const cls = payload as AllyClassId;
       if (w.squad.length >= SQUAD_CAP + 1) {
         w.dropCoins(x, y, 12);
-        w.emit('text', x, y - 24, 18, 0, '#ffd166', 'Отряд полон: +лом');
+        w.emit('text', x, y - 24, 18, 0, '#ffd166', 'Отряд полон: +монеты');
       } else {
         w.addMember(cls, 0);
         w.stats.rescued++;
