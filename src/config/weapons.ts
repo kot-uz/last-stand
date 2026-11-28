@@ -36,7 +36,7 @@ export interface WeaponDef {
 const W = <T extends Record<string, WeaponDef>>(t: T) => t;
 
 export const WEAPONS = W({
-  pistol: { id: 'pistol', name: 'Пистолет', dmg: 12, rate: 4, speed: 950, spread: 0.03, count: 1, pierce: 0, range: 620, kind: 'bullet', ammo: 0, color: '#ffe08a', sfx: 'pistol', tier: 0 },
+  pistol: { id: 'pistol', name: 'Пистолет', dmg: 12, rate: 4, speed: 950, spread: 0.03, count: 1, pierce: 0, range: 1100, kind: 'bullet', ammo: 0, color: '#ffe08a', sfx: 'pistol', tier: 0 },
   smg: { id: 'smg', name: 'Пистолет-пулемёт', dmg: 8, rate: 11, speed: 1000, spread: 0.16, count: 1, pierce: 0, range: 560, kind: 'bullet', ammo: 260, color: '#ffd166', sfx: 'smg', tier: 1 },
   shotgun: { id: 'shotgun', name: 'Дробовик', dmg: 7, rate: 1.7, speed: 900, spread: 0.55, count: 7, pierce: 0, range: 330, kind: 'pellet', knock: 26, ammo: 45, color: '#ffb347', sfx: 'shotgun', tier: 1 },
   rifle: { id: 'rifle', name: 'Штурмовая винтовка', dmg: 15, rate: 8, speed: 1150, spread: 0.06, count: 1, pierce: 1, range: 680, kind: 'bullet', ammo: 200, color: '#fff3b0', sfx: 'rifle', tier: 2 },
