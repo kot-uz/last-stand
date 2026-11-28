@@ -6,6 +6,9 @@ import { MEMBER_R, VIEW_W, World, type Bullet, type Member } from './world';
 
 const LEADER_SPEED = 600;
 const SPACING = 21;
+/** sim seconds after the boss dies before all coins fly to the squad (must finish before the result screen) */
+const RUSH_DELAY = 0.35;
+const RUSH_STAGGER = 0.3;
 
 const bulletPool: Bullet[] = [];
 export function makeBullet(w: World): Bullet {
@@ -67,6 +70,7 @@ export function updateSquad(w: World, dt: number) {
       fire(w, m, i, dt);
     }
   }
+  updateCoins(w, L, dt);
   if (won) return;
 
   // medics
@@ -83,28 +87,44 @@ export function updateSquad(w: World, dt: number) {
     }
   }
 
-  // coins
+  // powers
+  for (const id of Object.keys(w.powers) as PowerId[]) if (w.powers[id] > 0) w.powers[id] = Math.max(0, w.powers[id] - dt);
+}
+
+function updateCoins(w: World, L: Member, dt: number) {
   const magR = 78 * w.mods.magnet;
+  const rush = w.state === 'won' && w.stats.bossKilled && w.endT >= RUSH_DELAY;
+  if (rush && !w.coinRush) {
+    w.coinRush = true;
+    w.emit('coinrush', L.x, L.y);
+    w.sound('power');
+  }
   for (const c of w.coins) {
     if (c.dead) continue;
+    if (rush && !c.rush) {
+      // negative t = short staggered wait before take-off
+      c.rush = c.magnet = true;
+      c.t = -w.fxRng.next() * RUSH_STAGGER;
+    }
     c.t += dt;
-    if (!c.magnet) {
+    if (!c.magnet || c.t < 0 && c.rush) {
       c.x += c.vx * dt; c.y += c.vy * dt;
       c.vx *= 1 - damp(4, dt); c.vy *= 1 - damp(4, dt);
       if (c.t > 0.25) {
         for (const m of w.squad) if (dist2(c.x, c.y, m.x, m.y) < magR * magR) { c.magnet = true; break; }
       }
-      if (c.y > w.camBottom + 40) c.dead = true;
+      if (!c.rush && c.y > w.camBottom + 40) c.dead = true;
     } else {
       const dx = L.x - c.x, dy = L.y - c.y;
       const d = Math.hypot(dx, dy) || 1;
-      const sp = 360 + c.t * 500;
+      const sp = c.rush ? 500 + c.t * 2600 : 360 + c.t * 500;
       const step = sp * dt;
       // collect if in range or if this step would overshoot the leader (prevents orbiting/flicker)
       if (d < 16 + step) {
         c.x = L.x; c.y = L.y;
         c.dead = true;
         w.stats.coins += c.v;
+        if (c.rush) w.rushValue += c.v;
         w.emit('coin', L.x, L.y);
         w.sound('coin');
       } else {
@@ -114,8 +134,11 @@ export function updateSquad(w: World, dt: number) {
     }
   }
 
-  // powers
-  for (const id of Object.keys(w.powers) as PowerId[]) if (w.powers[id] > 0) w.powers[id] = Math.max(0, w.powers[id] - dt);
+  if (w.rushValue > 0 && w.coins.every(c => c.dead)) {
+    w.emit('coinrushend', L.x, L.y, w.rushValue);
+    w.sound('good');
+    w.rushValue = 0;
+  }
 }
 
 function collideProps(w: World, m: Member) {

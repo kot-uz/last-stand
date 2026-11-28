@@ -151,6 +151,7 @@ export class Renderer {
     this.drawDecor(top, bottom, true);
     if (this.night) this.drawNight(w, k);
     this.drawWeather(w);
+    this.drawCoinRush(w);
     this.drawTexts();
 
     // screen-space overlays
@@ -423,15 +424,57 @@ export class Renderer {
     }
   }
 
-  private drawCoins(w: World) {
-    const g = this.g;
-    const coin = cached('coin', 14, 14, gg => {
+  private coinSprite() {
+    return cached('coin', 14, 14, gg => {
       ellipse(gg, 0, 0, 5.5, 5.5, '#ffc93c', true, 1.4);
       ellipse(gg, -1.2, -1.2, 2.2, 2.2, '#fff1b0', false);
     });
+  }
+
+  private drawCoins(w: World) {
+    const g = this.g;
+    const coin = this.coinSprite();
     for (const c of w.coins) {
+      if (c.rush) continue;
       const s = 0.8 + Math.abs(Math.sin(c.t * 8 + c.x)) * 0.35;
       g.drawImage(coin.c, c.x - 7 * s, c.y - 7, 14 * s, 14);
+    }
+  }
+
+  /** post-boss auto-collect: glowing coins with golden trails, drawn above everything */
+  private drawCoinRush(w: World) {
+    const L = w.leader;
+    if (!L || !w.coinRush || !w.coins.length) return;
+    const g = this.g;
+    const coin = this.coinSprite();
+    const halo = glow('#ffc93c');
+    g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = 0.45 + Math.sin(this.time * 14) * 0.15;
+    g.drawImage(halo, L.x - 55, L.y - 55, 110, 110);
+    g.lineCap = 'round';
+    g.strokeStyle = '#ffd166';
+    for (const c of w.coins) {
+      if (!c.rush) continue;
+      g.globalAlpha = 0.7;
+      g.drawImage(halo, c.x - 16, c.y - 16, 32, 32);
+      if (c.t <= 0) continue;
+      const dx = c.x - L.x, dy = c.y - L.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const len = Math.min(70, c.t * 260);
+      // two strokes: wide faint tail + thin bright core
+      for (const [part, width, a] of [[1, 3, 0.35], [0.5, 5, 0.6]]) {
+        g.globalAlpha = a;
+        g.lineWidth = width;
+        g.beginPath(); g.moveTo(c.x, c.y); g.lineTo(c.x + (dx / d) * len * part, c.y + (dy / d) * len * part); g.stroke();
+      }
+    }
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = 1;
+    g.lineCap = 'butt';
+    for (const c of w.coins) {
+      if (!c.rush) continue;
+      const s = 1 + Math.abs(Math.sin(c.t * 14 + c.x)) * 0.5;
+      g.drawImage(coin.c, c.x - 7 * s, c.y - 8.5, 14 * s, 17);
     }
   }
 

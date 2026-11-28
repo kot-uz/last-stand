@@ -165,6 +165,16 @@ export class Effects {
         this.light(e.x, e.y, 90, 0.3, 'rgba(255,240,180,1)');
         break;
       case 'coin': this.burst(PK.Star, e.x, e.y - 6, 1, 50, 0.3, 2.5, '#ffd166', { drag: 3 }); break;
+      case 'coinrush':
+        for (let i = 0; i < 3; i++) this.p(PK.Ring, e.x, e.y, 0, -w.scroll, 0.4 + i * 0.15, 10, '#ffd166', { grow: 500 + i * 250 });
+        this.light(e.x, e.y, 260, 0.9, 'rgba(255,210,100,1)');
+        break;
+      case 'coinrushend':
+        this.p(PK.Glow, e.x, e.y, 0, -w.scroll, 0.35, 60, '#ffc93c');
+        this.p(PK.Ring, e.x, e.y, 0, -w.scroll, 0.45, 12, '#fff1b0', { grow: 260 });
+        this.burst(PK.Star, e.x, e.y, 26, 260, 0.8, 5, '#ffd166', { drag: 3 });
+        this.text(e.x, e.y - 60, `+${Math.round(e.a!)} монет`, '#ffd166', 30);
+        break;
       case 'heal': this.p(PK.Star, e.x + (r.next() - 0.5) * 16, e.y - 6, 0, -50 - w.scroll, 0.6, 3.5, '#63e6be', { drag: 1 }); break;
       case 'shieldhit': this.p(PK.Ring, e.x, e.y, 0, -w.scroll, 0.2, 14, '#4cc9f0', { grow: 30 }); break;
       case 'text': this.text(e.x, e.y, e.s ?? '', e.c ?? '#fff', e.a ?? 18); break;

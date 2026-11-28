@@ -85,7 +85,7 @@ export interface Prop {
   variant: number;
 }
 
-export interface Coin { x: number; y: number; vx: number; vy: number; v: number; t: number; magnet: boolean; dead: boolean }
+export interface Coin { x: number; y: number; vx: number; vy: number; v: number; t: number; magnet: boolean; dead: boolean; rush?: boolean }
 
 export interface EShot {
   kind: 'acid' | 'car' | 'egg';
@@ -155,6 +155,9 @@ export class World {
   bullets: Bullet[] = [];
   props: Prop[] = [];
   coins: Coin[] = [];
+  /** post-boss auto-collect: started flag and value gathered but not yet announced */
+  coinRush = false;
+  rushValue = 0;
   shots: EShot[] = [];
   waves: Wave[] = [];
   boss: Boss | null = null;
@@ -316,12 +319,12 @@ export class World {
     }
   }
 
-  dropCoins(x: number, y: number, value: number) {
+  dropCoins(x: number, y: number, value: number, maxCoins = 5, spread = 1) {
     const v = value * (1 + this.mods.luck * 0.06);
-    const n = Math.min(5, Math.max(1, Math.round(value / 2)));
+    const n = Math.min(maxCoins, Math.max(1, Math.round(value / 2)));
     for (let i = 0; i < n; i++) {
       const a = this.fxRng.next() * Math.PI * 2;
-      const s = 40 + this.fxRng.next() * 80;
+      const s = (40 + this.fxRng.next() * 80) * spread;
       this.coins.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 40, v: v / n, t: 0, magnet: false, dead: false });
     }
   }
@@ -374,7 +377,7 @@ export class World {
       this.emit('shake', 0, 0, 20);
       this.sound('bossdeath');
       this.slowmo = 1.6;
-      this.dropCoins(b.x, b.y, 120);
+      this.dropCoins(b.x, b.y, 120, 40, 4);
       for (const z of this.zombies) if (!z.dead) this.killZombie(z, true);
       this.win();
     }

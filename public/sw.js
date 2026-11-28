@@ -1,5 +1,5 @@
 // Offline cache: network-first for pages, cache-first for assets and fonts.
-const CACHE = 'last-stand-v1';
+const CACHE = 'last-stand-v2';
 const ROOT = self.registration.scope; // works under any base path (e.g. /last-stand/)
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll([ROOT, ROOT + 'manifest.webmanifest', ROOT + 'icon-192.png', ROOT + 'icon-512.png', ROOT + 'icon.svg'])));
